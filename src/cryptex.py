@@ -1,7 +1,13 @@
+import base64
+import binascii
 import os
+import re
+import tempfile
+
 import bcrypt
 import mysql.connector
 from getpass import getpass
+from cryptography.fernet import Fernet
 
 
 def create_database():
@@ -80,6 +86,60 @@ def login(username, password):
             connection.close()
 
 
+def encrypt_content(content, key):
+    cipher_suite = Fernet(key)
+    encrypted_content = cipher_suite.encrypt(content.encode('utf-8'))
+    return encrypted_content
+
+
+def decrypt_content(encrypted_content, key):
+    cipher_suite = Fernet(key)
+    decrypted_content = cipher_suite.decrypt(encrypted_content).decode('utf-8')
+    return decrypted_content
+
+
+def is_base64(s):
+    return re.fullmatch(r'^[A-Za-z0-9+/]+={0,2}$', s) is not None
+
+
+def read_or_create_file(username):
+    os.makedirs('../.src', exist_ok=True)
+    file_path = f'../.src/{username}.txt'
+    if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
+        key = Fernet.generate_key()
+        cipher_suite = Fernet(key)
+        with open(file_path, 'wb') as file:
+            encrypted_content = cipher_suite.encrypt(b'Initial content')
+            file.write(encrypted_content)
+            print(f"[SUCCESS] File {username}.txt created")
+        print(f"Your encryption key is: {key.decode()}")
+        print("You will never see this key again.")
+    else:
+        key_input = getpass("Encryption key: ")
+        try:
+            key = key_input.encode()
+            cipher_suite = Fernet(key)
+        except ValueError:
+            print("[WARNING] Incorrect key.")
+            return
+        with open(file_path, 'rb') as file:
+            encrypted_content = file.read()
+            try:
+                content = cipher_suite.decrypt(encrypted_content).decode('utf-8')
+                with tempfile.NamedTemporaryFile(suffix=".tmp", delete=False) as tf:
+                    tf.write(content.encode())
+                    temp_file_name = tf.name
+                os.system(f"nano {temp_file_name}")
+                with open(temp_file_name, 'r') as tf:
+                    updated_content = tf.read()
+                os.remove(temp_file_name)
+                encrypted_updated_content = cipher_suite.encrypt(updated_content.encode())
+                with open(file_path, 'wb') as file:
+                    file.write(encrypted_updated_content)
+            except:
+                print("[WARNING] Incorrect key.")
+
+
 create_database()
 
 try:
@@ -111,6 +171,8 @@ try:
                     username = None
                     print("[SUCCESS] Logged out")
                     break
+                elif type_key2 == "-read":
+                    read_or_create_file(username)
                 else:
                     print(type_key2)
         else:
