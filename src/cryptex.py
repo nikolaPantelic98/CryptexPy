@@ -67,10 +67,13 @@ def login(username, password):
         if result and bcrypt.checkpw(password.encode('utf-8'), result[0].encode('utf-8')):
             print("[SUCCESS] Login completed")
             print(f"[SUCCESS] Welcome {username}!")
+            return True
         else:
             print("[WARNING] Login error")
+            return False
     except mysql.connector.Error as error:
         print(f"[ERROR] Failed to login user in MySQL: {error}")
+        return False
     finally:
         if connection.is_connected():
             cursor.close()
@@ -78,26 +81,46 @@ def login(username, password):
 
 
 try:
+    logged_in = False
+    username = None
     while True:
-        type_key = input(">>")
+        type_key = input(">$ ")
         if type_key == "-quit":
             raise KeyboardInterrupt
         elif type_key == "-connect":
             create_database()
             while True:
-                type_key2 = input(">>>")
+                type_key2 = input(">>$ ")
                 if type_key2 == "-quit":
                     raise KeyboardInterrupt
                 elif type_key2 == "-back":
+                    logged_in = False
+                    username = None
                     break
                 elif type_key2 == "-register":
-                    username = input("Enter username: ")
-                    password = getpass("Enter password: ")
+                    username = input("$ Enter username: ")
+                    password = getpass("$ Enter password: ")
                     register(username, password)
                 elif type_key2 == "-login":
-                    username = input("Enter username: ")
-                    password = getpass("Enter password: ")
-                    login(username, password)
+                    username = input("$ Enter username: ")
+                    password = getpass("$ Enter password: ")
+                    logged_in = login(username, password)
+                elif type_key2 == "-logout":
+                    logged_in = False
+                    username = None
+                    print("[SUCCESS] Logged out")
+                elif type_key2 == "-enter" and logged_in:
+                    while True:
+                        type_key3 = input(f"~{username}>>>$ ")
+                        if type_key3 == "-quit":
+                            raise KeyboardInterrupt
+                        elif type_key3 == "-logout":
+                            logged_in = False
+                            username = None
+                            print("[SUCCESS] Logged out")
+                            break
+                        else:
+                            print(type_key3)
                 else:
                     print(type_key2)
         else:
