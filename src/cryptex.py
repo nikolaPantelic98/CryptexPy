@@ -1,5 +1,3 @@
-import base64
-import binascii
 import os
 import re
 import tempfile
@@ -14,8 +12,8 @@ def create_database():
     try:
         connection = mysql.connector.connect(
             host="localhost",
-            user=os.getenv('DATASOURCE_USERNAME'),
-            password=os.getenv('DATASOURCE_PASSWORD')
+            user=db_username,
+            password=db_password
         )
 
         cursor = connection.cursor()
@@ -41,8 +39,8 @@ def register(username, password):
     try:
         connection = mysql.connector.connect(
             host="localhost",
-            user=os.getenv('DATASOURCE_USERNAME'),
-            password=os.getenv('DATASOURCE_PASSWORD'),
+            user=db_username,
+            password=db_password,
             database="cryptex_py"
         )
 
@@ -62,8 +60,8 @@ def login(username, password):
     try:
         connection = mysql.connector.connect(
             host="localhost",
-            user=os.getenv('DATASOURCE_USERNAME'),
-            password=os.getenv('DATASOURCE_PASSWORD'),
+            user=db_username,
+            password=db_password,
             database="cryptex_py"
         )
 
@@ -140,6 +138,9 @@ def read_or_create_file(username):
                 print("[WARNING] Incorrect key.")
 
 
+print("Data Source")
+db_username = input("User: ")
+db_password = getpass("Password: ")
 create_database()
 
 try:
@@ -173,9 +174,5 @@ try:
                     break
                 elif type_key2 == "-read":
                     read_or_create_file(username)
-                else:
-                    print(type_key2)
-        else:
-            print(type_key)
 except KeyboardInterrupt:
     pass
