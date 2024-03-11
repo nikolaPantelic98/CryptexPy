@@ -40,6 +40,7 @@ pip install -r requirements.txt
 * Start the script with:
 
 ```
+cd src
 python3 cryptex.py
 ```
 
