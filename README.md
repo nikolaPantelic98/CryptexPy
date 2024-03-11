@@ -1,46 +1,49 @@
-# CryptexPy
+# 🛡️ CryptexPy: Your Personal Vault for Text Files 📝
 
-Welcome to CryptexPy. This script will fully encode your .txt file.
+Welcome to CryptexPy, a fortress for your text files. Imagine having a personal vault where you can store all your sensitive information, from passwords to secret notes, and no one but you holds the key. That's what CryptexPy is all about!
 
-## Features
+## 🌟 Features
 
-- Several layers of protection.
-- Ideal for storing passwords and sensitive information.
+- **Fort Knox for your files**: With several layers of protection, your text files are safe and secure.
+- **Ideal for secrets**: Perfect for storing passwords, secret notes, and sensitive information.
 
-## Requirements
+## 📚 Requirements
 
-- python3
-- pip3
+- Python 3: The power behind our script.
+- pip3: For installing all the necessary tools.
+- MySQL: Our choice of database for storing user credentials.
 
-## Installation
+## 🚀 Getting Started
 
-* Clone the repository to your local machine:
+1. Clone the repository to your local machine:
 
 ```
 git clone https://github.com/nikolaPantelic98/CryptexPy.git
 ```
 
-* Navigate to the directory:
+2. Navigate to the directory:
 
 ```
 cd CryptexPy
 ```
 
-* Install requirements.txt file:
+3. Install the necessary libraries:
 
 ```
 pip install -r requirements.txt
 ```
 
-* Install mysql and set up credentials.
+4. Install MySQL and set up your credentials.
 
-* Start the script:
+## 🎮 How to Use
+
+* Start the script with:
 
 ```
 python3 cryptex.py
 ```
 
-## Additional information
+## 🔍 Additional information
 
 - You will need mysql user and password to estabilish connection.
 - Commands:
@@ -48,7 +51,7 @@ python3 cryptex.py
   - `-register` - register your account
   - `-login` - login  to your account
   - `-logout` - logout from your account
-  - `-enter` - enter the account
+  - `-enter` - enter your account
   - `-read` - read and edit your .txt file in decrypted format.
 - When you run `-read` for the first time, the key will be generated.
 - You will be only able to see decrypted data with the correct key. If the key is lost, there is currently no option to recover the data.
