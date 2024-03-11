@@ -54,5 +54,7 @@ python3 cryptex.py
   - `-logout` - logout from your account
   - `-enter` - enter your account
   - `-read` - read and edit your .txt file in decrypted format.
+  - `-reset` - reset your encrypted key and get a new one.
 - When you run `-read` for the first time, the key will be generated.
 - You will be only able to see decrypted data with the correct key. If the key is lost, there is currently no option to recover the data.
+- You can reset key with the `-reset` command which require old encrypted key.
