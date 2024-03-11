@@ -138,6 +138,31 @@ def read_or_create_file(username):
                 print("[WARNING] Incorrect key.")
 
 
+def reset_key(username):
+    file_path = f'../.src/{username}.txt'
+    old_key_input = getpass("Encryption key: ")
+    try:
+        old_key = old_key_input.encode()
+        old_cipher_suite = Fernet(old_key)
+    except ValueError:
+        print("[WARNING] Incorrect encryption key.")
+        return
+    with open(file_path, 'rb') as file:
+        encrypted_content = file.read()
+        try:
+            content = old_cipher_suite.decrypt(encrypted_content).decode('utf-8')
+            new_key = Fernet.generate_key()
+            new_cipher_suite = Fernet(new_key)
+            encrypted_updated_content = new_cipher_suite.encrypt(content.encode())
+            with open(file_path, 'wb') as file:
+                file.write(encrypted_updated_content)
+            print(f"[SUCCESS] Encryption key reset")
+            print(f"Your new encryption key is: {new_key.decode()}")
+            print("You will never see this key again.")
+        except:
+            print("[WARNING] Incorrect encryption key.")
+
+
 print("Data Source")
 db_username = input("User: ")
 db_password = getpass("Password: ")
@@ -174,5 +199,7 @@ try:
                     break
                 elif type_key2 == "-read":
                     read_or_create_file(username)
+                elif type_key2 == "-reset":
+                    reset_key(username)
 except KeyboardInterrupt:
     pass
