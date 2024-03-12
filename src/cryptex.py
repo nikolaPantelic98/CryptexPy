@@ -19,7 +19,7 @@ def create_database():
         cursor = connection.cursor()
         cursor.execute("CREATE DATABASE IF NOT EXISTS cryptex_py")
         cursor.execute("USE cryptex_py")
-        cursor.execute("CREATE TABLE IF NOT EXISTS user (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(255), password VARCHAR(255), encrypted_key VARCHAR(255))")
+        cursor.execute("CREATE TABLE IF NOT EXISTS user (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(255), password VARCHAR(255))")
         cursor.execute("CREATE TABLE IF NOT EXISTS manager (id INT AUTO_INCREMENT PRIMARY KEY, website VARCHAR(255), email VARCHAR(255), password VARCHAR(255), user_id INT, FOREIGN KEY(user_id) REFERENCES user(id))")
         print("[SUCCESS] Connection established")
     except mysql.connector.Error as error:
@@ -47,7 +47,7 @@ def register(username, password):
         )
 
         cursor = connection.cursor()
-        cursor.execute("INSERT INTO user (username, password, encrypted_key) VALUES (%s, %s, %s)", (username, hashed_password, hashed_key))
+        cursor.execute("INSERT INTO user (username, password) VALUES (%s, %s)", (username, hashed_password))
         connection.commit()
         print("[SUCCESS] User registered successfully")
     except mysql.connector.Error as error:
@@ -95,11 +95,16 @@ def save(username, website, email, password):
         )
 
         cursor = connection.cursor()
-        cursor.execute("SELECT id, encrypted_key FROM user WHERE username = %s", (username,))
+        cursor.execute("SELECT id, password FROM user WHERE username = %s", (username,))
         result = cursor.fetchone()
         if result:
-            user_id, encrypted_key = result
-            cipher_suite = Fernet(encrypted_key.encode('utf-8'))
+            user_id, hashed_account_password = result
+            master_password = getpass("$ Enter master password: ")
+            if not bcrypt.checkpw(master_password.encode('utf-8'), hashed_account_password.encode('utf-8')):
+                print("[WARNING] Master password does not match account password")
+                return
+            hashed_key = base64.urlsafe_b64encode(hashlib.sha256(master_password.encode('utf-8')).digest())
+            cipher_suite = Fernet(hashed_key)
             cipher_text = cipher_suite.encrypt(password.encode())
             cursor.execute("INSERT INTO manager (website, email, password, user_id) VALUES (%s, %s, %s, %s)", (website, email, cipher_text.decode('utf-8'), user_id))
             connection.commit()
