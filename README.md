@@ -37,7 +37,7 @@ pip install -r requirements.txt
 
 4. Install MySQL and set up your credentials:
 
-You can start [here](https://www.simplilearn.com/tutorials/mysql-tutorial/mysql-workbench-installation).
+- To install MySQL you can visit [this link](https://www.simplilearn.com/tutorials/mysql-tutorial/mysql-workbench-installation).
 
 5. Set up environment variables for MySQL:
 
