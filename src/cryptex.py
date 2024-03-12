@@ -165,19 +165,40 @@ def show(username):
             connection.close()
 
 
+def help():
+    print("\nWelcome to CryptexPy - a fortress for your digital secrets\n")
+    commands = {
+        "--quit": "Exit the script.",
+        "--register": "Register a new account.",
+        "--login": "Login to your account.",
+        "--logout": "Logout from your account.",
+        "--save": "Securely save a new password.",
+        "--show": "Retrieve and display saved passwords securely."
+    }
+    for command, description in commands.items():
+        print(f"{command.ljust(15)} - {description}")
+    print("\n")
+    print("Please note that before you can execute any commands,")
+    print("you need to create an account using --register and log in using --login.")
+    print("Once you are logged in, you can use --save to securely save a new password,")
+    print("and --show to retrieve and display your saved passwords securely.")
+    print("You can log out of your account at any time using --logout.")
+    print("\n")
+
+
 create_database()
 try:
     logged_in = False
     username = None
     while True:
         type_key = input(">$ ")
-        if type_key == "-quit":
+        if type_key == "--quit":
             raise KeyboardInterrupt
         elif type_key == "-register":
             username = input("$ Enter username: ")
             password = getpass("$ Enter password: ")
             register(username, password)
-        elif type_key == "-login":
+        elif type_key == "--login":
             username = input("$ Enter username: ")
             password = getpass("$ Enter password: ")
             logged_in = login(username, password)
@@ -185,17 +206,21 @@ try:
                 type_key2 = input(f"~{username}>$ ")
                 if type_key2 == "-quit":
                     raise KeyboardInterrupt
-                elif type_key2 == "-logout":
+                elif type_key2 == "--logout":
                     logged_in = False
                     username = None
                     print("[SUCCESS] Logged out")
                     break
-                elif type_key2 == "-save":
+                elif type_key2 == "--save":
                     website = input("$ Enter website: ")
                     email = input("$ Enter email: ")
                     password = getpass("$ Enter password: ")
                     save(username, website, email, password)
-                elif type_key2 == "-show":
+                elif type_key2 == "--show":
                     show(username)
+        elif type_key == "--help":
+            help()
+        else:
+            print(f"{type_key}: command not found. Type --help for help.")
 except KeyboardInterrupt:
     pass

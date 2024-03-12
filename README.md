@@ -75,11 +75,12 @@ Follow the prompts to register, login, and manage your passwords.
 
 - You will need mysql user and password to estabilish connection.
 - Commands:
-  - `-quit` - Exit the script.
-  - `-register` - Register a new account.
-  - `-login` - Login to your account.
-  - `-logout` - Logout from your account.
-  - `-save` - Securely save a new password.
-  - `-show` - Retrieve and display saved passwords securely.
+  - `--quit` - Exit the script.
+  - `--register` - Register a new account.
+  - `--login` - Login to your account.
+  - `--logout` - Logout from your account.
+  - `--save` - Securely save a new password.
+  - `--show` - Retrieve and display saved passwords securely.
+  - `--help` - Show all necessary information.
 
 Your data's security is our top priority, and CryptexPy is continually updated to implement the latest security practices and encryption technologies.
