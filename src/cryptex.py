@@ -209,7 +209,7 @@ try:
             logged_in = login(username, password)
             while logged_in:
                 type_key2 = input(f"~{username}>$ ")
-                if type_key2 == "-quit":
+                if type_key2 == "--quit":
                     raise KeyboardInterrupt
                 elif type_key2 == "--logout":
                     logged_in = False

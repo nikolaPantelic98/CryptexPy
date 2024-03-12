@@ -45,13 +45,19 @@ pip install -r requirements.txt
 
 ```
 echo 'export CRYPTEX_DB_USER="your_username"' >> ~/.bashrc
+```
+```
 echo 'export CRYPTEX_DB_PASSWORD="your_password"' >> ~/.bashrc
+```
+```
 source ~/.bashrc
 ```
 
 - For Windows:
 ```
 setx CRYPTEX_DB_USER "your_username"
+```
+```
 setx CRYPTEX_DB_PASSWORD "your_password"
 ```
 
