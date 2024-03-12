@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import os
 
 import bcrypt
 import cryptography
@@ -12,8 +13,8 @@ def create_database():
     try:
         connection = mysql.connector.connect(
             host="localhost",
-            user=db_username,
-            password=db_password
+            user=os.getenv("CRYPTEX_DB_USER"),
+            password=os.getenv("CRYPTEX_DB_PASSWORD")
         )
 
         cursor = connection.cursor()
@@ -41,8 +42,8 @@ def register(username, password):
     try:
         connection = mysql.connector.connect(
             host="localhost",
-            user=db_username,
-            password=db_password,
+            user=os.getenv("CRYPTEX_DB_USER"),
+            password=os.getenv("CRYPTEX_DB_PASSWORD"),
             database="cryptex_py"
         )
 
@@ -62,8 +63,8 @@ def login(username, password):
     try:
         connection = mysql.connector.connect(
             host="localhost",
-            user=db_username,
-            password=db_password,
+            user=os.getenv("CRYPTEX_DB_USER"),
+            password=os.getenv("CRYPTEX_DB_PASSWORD"),
             database="cryptex_py"
         )
 
@@ -89,8 +90,8 @@ def save(username, website, email, password):
     try:
         connection = mysql.connector.connect(
             host="localhost",
-            user=db_username,
-            password=db_password,
+            user=os.getenv("CRYPTEX_DB_USER"),
+            password=os.getenv("CRYPTEX_DB_PASSWORD"),
             database="cryptex_py"
         )
 
@@ -123,8 +124,8 @@ def show(username):
     try:
         connection = mysql.connector.connect(
             host="localhost",
-            user=db_username,
-            password=db_password,
+            user=os.getenv("CRYPTEX_DB_USER"),
+            password=os.getenv("CRYPTEX_DB_PASSWORD"),
             database="cryptex_py"
         )
 
@@ -164,11 +165,7 @@ def show(username):
             connection.close()
 
 
-print("Data Source")
-db_username = input("User: ")
-db_password = getpass("Password: ")
 create_database()
-
 try:
     logged_in = False
     username = None

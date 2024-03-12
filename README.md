@@ -37,6 +37,26 @@ pip install -r requirements.txt
 
 4. Install MySQL and set up your credentials.
 
+5. Set up environment variables for MySQL
+
+- For Linux/Mac:
+
+```
+echo 'export CRYPTEX_DB_USER="your_username"' >> ~/.bashrc
+echo 'export CRYPTEX_DB_PASSWORD="your_password"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+- For Windows:
+```
+setx CRYPTEX_DB_USER "your_username"
+setx CRYPTEX_DB_PASSWORD "your_password"
+```
+
+* Replace 'your_username' and 'your_password' with real credentials.
+* Execute these commands line for line.
+* It is necessary to close and reopen cmd for variables to be available on Windows.
+
 ## 🎮 How to Use
 
 * Start the script with:
