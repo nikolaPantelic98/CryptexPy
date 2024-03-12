@@ -86,6 +86,7 @@ Follow the prompts to register, login, and manage your passwords.
   - `--login` - Login to your account.
   - `--logout` - Logout from your account.
   - `--save` - Securely save a new password.
+  - `--edit` - Edit data (website, email, password).
   - `--show` - Retrieve and display saved passwords securely.
   - `--help` - Show all necessary information.
 

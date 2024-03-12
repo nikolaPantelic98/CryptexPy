@@ -191,6 +191,52 @@ def display_help():
     print("\n")
 
 
+def edit(username):
+    try:
+        connection = mysql.connector.connect(
+            host="localhost",
+            user=os.getenv("CRYPTEX_DB_USER"),
+            password=os.getenv("CRYPTEX_DB_PASSWORD"),
+            database="cryptex_py"
+        )
+
+        cursor = connection.cursor()
+        cursor.execute("SELECT id FROM user WHERE username = %s", (username,))
+        result = cursor.fetchone()
+        if result:
+            user_id = result[0]
+            cursor.execute("SELECT website FROM manager WHERE user_id = %s", (user_id,))
+            websites = cursor.fetchall()
+            print("\nWebsites:\n")
+            for i, website in enumerate(websites, 1):
+                print(f"{i}. {website[0]}")
+            print("\n")
+            website = input("$ Enter website to edit: ")
+            field = input("$ Enter field to edit (website, email, password): ")
+            if field not in ['website', 'email', 'password']:
+                print("[WARNING] Invalid field")
+                return
+            if field in ['website', 'email']:
+                new_value = input(f"$ Enter new {field}: ")
+            if field == 'password':
+                new_value = getpass(f"$ Enter new {field}: ")
+                master_password = getpass("$ Enter master password: ")
+                hashed_key = base64.urlsafe_b64encode(hashlib.sha256(master_password.encode('utf-8')).digest())
+                cipher_suite = Fernet(hashed_key)
+                new_value = cipher_suite.encrypt(new_value.encode()).decode('utf-8')
+            cursor.execute(f"UPDATE manager SET {field} = %s WHERE user_id = %s AND website = %s", (new_value, user_id, website))
+            connection.commit()
+            print("[SUCCESS] Data updated successfully")
+        else:
+            print("[WARNING] User not found")
+    except mysql.connector.Error as error:
+        print(f"[ERROR] Failed to update data in MySQL: {error}")
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+
 create_database()
 try:
     logged_in = False
@@ -223,6 +269,8 @@ try:
                     save(username, website, email, password)
                 elif type_key2 == "--show":
                     show(username)
+                elif type_key2 == "--edit":
+                    edit(username)
                 elif type_key2 == "--help":
                     display_help()
                 else:
