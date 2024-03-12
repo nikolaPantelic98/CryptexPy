@@ -6,6 +6,8 @@ import bcrypt
 import cryptography
 import mysql.connector
 from getpass import getpass
+
+import pyperclip
 from cryptography.fernet import Fernet
 
 
@@ -102,7 +104,7 @@ def save(username, website, email, password):
             user_id, hashed_account_password = result
             master_password = getpass("$ Enter master password: ")
             if not bcrypt.checkpw(master_password.encode('utf-8'), hashed_account_password.encode('utf-8')):
-                print("[WARNING] Master password does not match account password")
+                print("[WARNING] Incorrect master password!")
                 return
             hashed_key = base64.urlsafe_b64encode(hashlib.sha256(master_password.encode('utf-8')).digest())
             cipher_suite = Fernet(hashed_key)
@@ -140,7 +142,7 @@ def show(username):
             for website in websites:
                 print(website[0])
             website = input("$ Enter website: ")
-            key = getpass("$ Enter key: ")
+            key = getpass("$ Enter master password: ")
             hashed_key = base64.urlsafe_b64encode(hashlib.sha256(key.encode('utf-8')).digest())
             cursor.execute("SELECT email, password FROM manager WHERE user_id = %s AND website = %s", (user_id, website))
             result = cursor.fetchone()
@@ -151,6 +153,8 @@ def show(username):
                     plain_text = cipher_suite.decrypt(password.encode()).decode('utf-8')
                     print(f"Email: {email}")
                     print(f"Password: {plain_text}")
+                    pyperclip.copy(plain_text)
+                    print("Password has been copied to clipboard.")
                 except cryptography.fernet.InvalidToken:
                     print("[ERROR] Invalid key")
             else:
@@ -165,7 +169,7 @@ def show(username):
             connection.close()
 
 
-def help():
+def display_help():
     print("\nWelcome to CryptexPy - a fortress for your digital secrets\n")
     commands = {
         "--quit": "Exit the script.",
@@ -194,13 +198,13 @@ try:
         type_key = input(">$ ")
         if type_key == "--quit":
             raise KeyboardInterrupt
-        elif type_key == "-register":
+        elif type_key == "--register":
             username = input("$ Enter username: ")
-            password = getpass("$ Enter password: ")
+            password = getpass("$ Enter master password: ")
             register(username, password)
         elif type_key == "--login":
             username = input("$ Enter username: ")
-            password = getpass("$ Enter password: ")
+            password = getpass("$ Enter master password: ")
             logged_in = login(username, password)
             while logged_in:
                 type_key2 = input(f"~{username}>$ ")
@@ -218,8 +222,12 @@ try:
                     save(username, website, email, password)
                 elif type_key2 == "--show":
                     show(username)
+                elif type_key2 == "--help":
+                    display_help()
+                else:
+                    print(f"{type_key}: command not found. Type --help for help.")
         elif type_key == "--help":
-            help()
+            display_help()
         else:
             print(f"{type_key}: command not found. Type --help for help.")
 except KeyboardInterrupt:
