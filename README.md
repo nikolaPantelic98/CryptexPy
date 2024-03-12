@@ -95,15 +95,19 @@ Follow the prompts to register, login, and manage your passwords.
 1. You need to set an alias to execute the script in an easy way:
 
 ```
-echo 'alias cryptex='\''cd /home/nikola/Projects/Local\ Projects/CryptexPy/src && python3 cryptex.py'\''' >> ~/.bashrc
+echo 'alias cryptex='\''cd /path_to_cryptex/CryptexPy/src && python3 cryptex.py'\''' >> ~/.bashrc
 
 ```
+
+Replace `path_to_cryptex` with the real path on your machine.
 
 2. You can set up terminal auto-complete logic:
 
 ```
-echo 'source /home/nikola/Projects/Local\ Projects/CryptexPy/cryptex_autocomplete.sh' >> ~/.bashrc
+echo 'source /path_to_cryptex/CryptexPy/cryptex_autocomplete.sh' >> ~/.bashrc
 ```
+
+Replace `path_to_cryptex` with the real path on your machine.
 
 3. Save edits:
 
