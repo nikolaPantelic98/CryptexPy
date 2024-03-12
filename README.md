@@ -35,9 +35,11 @@ cd CryptexPy
 pip install -r requirements.txt
 ```
 
-4. Install MySQL and set up your credentials.
+4. Install MySQL and set up your credentials:
 
-5. Set up environment variables for MySQL
+You can start [here](https://www.simplilearn.com/tutorials/mysql-tutorial/mysql-workbench-installation).
+
+5. Set up environment variables for MySQL:
 
 - For Linux/Mac:
 
