@@ -138,9 +138,10 @@ def show(username):
             user_id = result[0]
             cursor.execute("SELECT website FROM manager WHERE user_id = %s", (user_id,))
             websites = cursor.fetchall()
-            print("Websites:")
-            for website in websites:
-                print(website[0])
+            print("\nWebsites:\n")
+            for i, website in enumerate(websites, 1):
+                print(f"{i}. {website[0]}")
+            print("\n")
             website = input("$ Enter website: ")
             key = getpass("$ Enter master password: ")
             hashed_key = base64.urlsafe_b64encode(hashlib.sha256(key.encode('utf-8')).digest())
