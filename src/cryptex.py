@@ -1,8 +1,8 @@
-import os
-import re
-import tempfile
+import base64
+import hashlib
 
 import bcrypt
+import cryptography
 import mysql.connector
 from getpass import getpass
 from cryptography.fernet import Fernet
@@ -19,7 +19,8 @@ def create_database():
         cursor = connection.cursor()
         cursor.execute("CREATE DATABASE IF NOT EXISTS cryptex_py")
         cursor.execute("USE cryptex_py")
-        cursor.execute("CREATE TABLE IF NOT EXISTS user (username VARCHAR(255), password VARCHAR(255))")
+        cursor.execute("CREATE TABLE IF NOT EXISTS user (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(255), password VARCHAR(255), encrypted_key VARCHAR(255))")
+        cursor.execute("CREATE TABLE IF NOT EXISTS manager (id INT AUTO_INCREMENT PRIMARY KEY, website VARCHAR(255), email VARCHAR(255), password VARCHAR(255), user_id INT, FOREIGN KEY(user_id) REFERENCES user(id))")
         print("[SUCCESS] Connection established")
     except mysql.connector.Error as error:
         print(f"[ERROR] Failed to create database in MySQL: {error}")
@@ -35,7 +36,8 @@ def register(username, password):
         print("[WARNING] Passwords do not match. Please try again.")
         return
 
-    hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    hashed_key = base64.urlsafe_b64encode(hashlib.sha256(password.encode('utf-8')).digest()).decode('utf-8')
     try:
         connection = mysql.connector.connect(
             host="localhost",
@@ -45,7 +47,7 @@ def register(username, password):
         )
 
         cursor = connection.cursor()
-        cursor.execute("INSERT INTO user (username, password) VALUES (%s, %s)", (username, hashed.decode('utf-8')))
+        cursor.execute("INSERT INTO user (username, password, encrypted_key) VALUES (%s, %s, %s)", (username, hashed_password, hashed_key))
         connection.commit()
         print("[SUCCESS] User registered successfully")
     except mysql.connector.Error as error:
@@ -69,7 +71,6 @@ def login(username, password):
         cursor.execute("SELECT password FROM user WHERE username = %s", (username,))
         result = cursor.fetchone()
         if result and bcrypt.checkpw(password.encode('utf-8'), result[0].encode('utf-8')):
-            print("[SUCCESS] Login completed")
             print(f"[SUCCESS] Welcome {username}!")
             return True
         else:
@@ -84,83 +85,78 @@ def login(username, password):
             connection.close()
 
 
-def encrypt_content(content, key):
-    cipher_suite = Fernet(key)
-    encrypted_content = cipher_suite.encrypt(content.encode('utf-8'))
-    return encrypted_content
-
-
-def decrypt_content(encrypted_content, key):
-    cipher_suite = Fernet(key)
-    decrypted_content = cipher_suite.decrypt(encrypted_content).decode('utf-8')
-    return decrypted_content
-
-
-def is_base64(s):
-    return re.fullmatch(r'^[A-Za-z0-9+/]+={0,2}$', s) is not None
-
-
-def read_or_create_file(username):
-    os.makedirs('../.src', exist_ok=True)
-    file_path = f'../.src/{username}.txt'
-    if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
-        key = Fernet.generate_key()
-        cipher_suite = Fernet(key)
-        with open(file_path, 'wb') as file:
-            encrypted_content = cipher_suite.encrypt(b'Initial content')
-            file.write(encrypted_content)
-            print(f"[SUCCESS] File {username}.txt created")
-        print(f"Your encryption key is: {key.decode()}")
-        print("You will never see this key again.")
-    else:
-        key_input = getpass("Encryption key: ")
-        try:
-            key = key_input.encode()
-            cipher_suite = Fernet(key)
-        except ValueError:
-            print("[WARNING] Incorrect key.")
-            return
-        with open(file_path, 'rb') as file:
-            encrypted_content = file.read()
-            try:
-                content = cipher_suite.decrypt(encrypted_content).decode('utf-8')
-                with tempfile.NamedTemporaryFile(suffix=".tmp", delete=False) as tf:
-                    tf.write(content.encode())
-                    temp_file_name = tf.name
-                os.system(f"nano {temp_file_name}")
-                with open(temp_file_name, 'r') as tf:
-                    updated_content = tf.read()
-                os.remove(temp_file_name)
-                encrypted_updated_content = cipher_suite.encrypt(updated_content.encode())
-                with open(file_path, 'wb') as file:
-                    file.write(encrypted_updated_content)
-            except:
-                print("[WARNING] Incorrect key.")
-
-
-def reset_key(username):
-    file_path = f'../.src/{username}.txt'
-    old_key_input = getpass("Encryption key: ")
+def save(username, website, email, password):
     try:
-        old_key = old_key_input.encode()
-        old_cipher_suite = Fernet(old_key)
-    except ValueError:
-        print("[WARNING] Incorrect encryption key.")
-        return
-    with open(file_path, 'rb') as file:
-        encrypted_content = file.read()
-        try:
-            content = old_cipher_suite.decrypt(encrypted_content).decode('utf-8')
-            new_key = Fernet.generate_key()
-            new_cipher_suite = Fernet(new_key)
-            encrypted_updated_content = new_cipher_suite.encrypt(content.encode())
-            with open(file_path, 'wb') as file:
-                file.write(encrypted_updated_content)
-            print(f"[SUCCESS] Encryption key reset")
-            print(f"Your new encryption key is: {new_key.decode()}")
-            print("You will never see this key again.")
-        except:
-            print("[WARNING] Incorrect encryption key.")
+        connection = mysql.connector.connect(
+            host="localhost",
+            user=db_username,
+            password=db_password,
+            database="cryptex_py"
+        )
+
+        cursor = connection.cursor()
+        cursor.execute("SELECT id, encrypted_key FROM user WHERE username = %s", (username,))
+        result = cursor.fetchone()
+        if result:
+            user_id, encrypted_key = result
+            cipher_suite = Fernet(encrypted_key.encode('utf-8'))
+            cipher_text = cipher_suite.encrypt(password.encode())
+            cursor.execute("INSERT INTO manager (website, email, password, user_id) VALUES (%s, %s, %s, %s)", (website, email, cipher_text.decode('utf-8'), user_id))
+            connection.commit()
+            print("[SUCCESS] Data saved successfully")
+        else:
+            print("[WARNING] User not found")
+    except mysql.connector.Error as error:
+        print(f"[ERROR] Failed to save data in MySQL: {error}")
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+
+def show(username):
+    try:
+        connection = mysql.connector.connect(
+            host="localhost",
+            user=db_username,
+            password=db_password,
+            database="cryptex_py"
+        )
+
+        cursor = connection.cursor()
+        cursor.execute("SELECT id FROM user WHERE username = %s", (username,))
+        result = cursor.fetchone()
+        if result:
+            user_id = result[0]
+            cursor.execute("SELECT website FROM manager WHERE user_id = %s", (user_id,))
+            websites = cursor.fetchall()
+            print("Websites:")
+            for website in websites:
+                print(website[0])
+            website = input("$ Enter website: ")
+            key = getpass("$ Enter key: ")
+            hashed_key = base64.urlsafe_b64encode(hashlib.sha256(key.encode('utf-8')).digest())
+            cursor.execute("SELECT email, password FROM manager WHERE user_id = %s AND website = %s", (user_id, website))
+            result = cursor.fetchone()
+            if result:
+                email, password = result
+                try:
+                    cipher_suite = Fernet(hashed_key)
+                    plain_text = cipher_suite.decrypt(password.encode()).decode('utf-8')
+                    print(f"Email: {email}")
+                    print(f"Password: {plain_text}")
+                except cryptography.fernet.InvalidToken:
+                    print("[ERROR] Invalid key")
+            else:
+                print("[WARNING] No data found for this website")
+        else:
+            print("[WARNING] User not found")
+    except mysql.connector.Error as error:
+        print(f"[ERROR] Failed to show data in MySQL: {error}")
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
 
 
 print("Data Source")
@@ -183,12 +179,7 @@ try:
             username = input("$ Enter username: ")
             password = getpass("$ Enter password: ")
             logged_in = login(username, password)
-        elif type_key == "-logout" and logged_in:
-            logged_in = False
-            username = None
-            print("[SUCCESS] Logged out")
-        elif type_key == "-enter" and logged_in:
-            while True:
+            while logged_in:
                 type_key2 = input(f"~{username}>$ ")
                 if type_key2 == "-quit":
                     raise KeyboardInterrupt
@@ -197,9 +188,12 @@ try:
                     username = None
                     print("[SUCCESS] Logged out")
                     break
-                elif type_key2 == "-read":
-                    read_or_create_file(username)
-                elif type_key2 == "-reset":
-                    reset_key(username)
+                elif type_key2 == "-save":
+                    website = input("$ Enter website: ")
+                    email = input("$ Enter email: ")
+                    password = getpass("$ Enter password: ")
+                    save(username, website, email, password)
+                elif type_key2 == "-show":
+                    show(username)
 except KeyboardInterrupt:
     pass

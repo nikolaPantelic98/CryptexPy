@@ -1,11 +1,11 @@
-# 🛡️ CryptexPy: Your Personal Vault for Text Files 📝
+# 🛡️ CryptexPy: Your Personal Password Manager 📝
 
-Welcome to CryptexPy, a fortress for your text files. Imagine having a personal vault where you can store all your sensitive information, from passwords to secret notes, and no one but you holds the key. That's what CryptexPy is all about!
+Welcome to CryptexPy, a fortress for your passwords. Imagine having a personal password manager where you can store all your sensitive information and no one but you holds the key. That's what CryptexPy is all about!
 
 ## 🌟 Features
 
-- **Fort Knox for your files**: With several layers of protection, your text files are safe and secure.
-- **Ideal for secrets**: Perfect for storing passwords, secret notes, and sensitive information.
+- **Fort Knox for your files**: With several layers of protection, your email and passwords are safe and secure.
+- **Ideal for secrets**: Perfect for storing passwords.
 
 ## 📚 Requirements
 
