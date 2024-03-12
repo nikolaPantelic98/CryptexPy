@@ -23,8 +23,8 @@ def create_database():
         cursor = connection.cursor()
         cursor.execute("CREATE DATABASE IF NOT EXISTS cryptex_py")
         cursor.execute("USE cryptex_py")
-        cursor.execute("CREATE TABLE IF NOT EXISTS user (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(255), password VARCHAR(255))")
-        cursor.execute("CREATE TABLE IF NOT EXISTS manager (id INT AUTO_INCREMENT PRIMARY KEY, website VARCHAR(255), email VARCHAR(255), password VARCHAR(255), user_id INT, FOREIGN KEY(user_id) REFERENCES user(id))")
+        cursor.execute("CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(255), password VARCHAR(255))")
+        cursor.execute("CREATE TABLE IF NOT EXISTS passwords (id INT AUTO_INCREMENT PRIMARY KEY, website VARCHAR(255), email VARCHAR(255), password VARCHAR(255), user_id INT, FOREIGN KEY(user_id) REFERENCES users(id))")
         print("[SUCCESS] Connection established")
     except mysql.connector.Error as error:
         print(f"[ERROR] Failed to create database in MySQL: {error}")
@@ -51,7 +51,7 @@ def register(username, password):
         )
 
         cursor = connection.cursor()
-        cursor.execute("INSERT INTO user (username, password) VALUES (%s, %s)", (username, hashed_password))
+        cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_password))
         connection.commit()
         print("[SUCCESS] User registered successfully")
     except mysql.connector.Error as error:
@@ -72,7 +72,7 @@ def login(username, password):
         )
 
         cursor = connection.cursor()
-        cursor.execute("SELECT password FROM user WHERE username = %s", (username,))
+        cursor.execute("SELECT password FROM users WHERE username = %s", (username,))
         result = cursor.fetchone()
         if result and bcrypt.checkpw(password.encode('utf-8'), result[0].encode('utf-8')):
             print(f"[SUCCESS] Welcome {username}!")
@@ -99,7 +99,7 @@ def save(username, website, email, password):
         )
 
         cursor = connection.cursor()
-        cursor.execute("SELECT id, password FROM user WHERE username = %s", (username,))
+        cursor.execute("SELECT id, password FROM users WHERE username = %s", (username,))
         result = cursor.fetchone()
         if result:
             user_id, hashed_account_password = result
@@ -110,7 +110,7 @@ def save(username, website, email, password):
             hashed_key = base64.urlsafe_b64encode(hashlib.sha256(master_password.encode('utf-8')).digest())
             cipher_suite = Fernet(hashed_key)
             cipher_text = cipher_suite.encrypt(password.encode())
-            cursor.execute("INSERT INTO manager (website, email, password, user_id) VALUES (%s, %s, %s, %s)", (website, email, cipher_text.decode('utf-8'), user_id))
+            cursor.execute("INSERT INTO passwords (website, email, password, user_id) VALUES (%s, %s, %s, %s)", (website, email, cipher_text.decode('utf-8'), user_id))
             connection.commit()
             print("[SUCCESS] Data saved successfully")
         else:
@@ -133,12 +133,12 @@ def show(username, website=None):
         )
 
         cursor = connection.cursor()
-        cursor.execute("SELECT id FROM user WHERE username = %s", (username,))
+        cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
         result = cursor.fetchone()
         if result:
             user_id = result[0]
             if website is None:
-                cursor.execute("SELECT website FROM manager WHERE user_id = %s", (user_id,))
+                cursor.execute("SELECT website FROM passwords WHERE user_id = %s", (user_id,))
                 websites = cursor.fetchall()
                 print("\nWebsites:\n")
                 for i, website in enumerate(websites, 1):
@@ -147,7 +147,7 @@ def show(username, website=None):
                 website = input("$ Enter website: ")
             key = getpass("$ Enter master password: ")
             hashed_key = base64.urlsafe_b64encode(hashlib.sha256(key.encode('utf-8')).digest())
-            cursor.execute("SELECT email, password FROM manager WHERE user_id = %s AND website = %s", (user_id, website))
+            cursor.execute("SELECT email, password FROM passwords WHERE user_id = %s AND website = %s", (user_id, website))
             result = cursor.fetchone()
             if result:
                 email, password = result
@@ -203,11 +203,11 @@ def edit(username):
         )
 
         cursor = connection.cursor()
-        cursor.execute("SELECT id FROM user WHERE username = %s", (username,))
+        cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
         result = cursor.fetchone()
         if result:
             user_id = result[0]
-            cursor.execute("SELECT website FROM manager WHERE user_id = %s", (user_id,))
+            cursor.execute("SELECT website FROM passwords WHERE user_id = %s", (user_id,))
             websites = cursor.fetchall()
             print("\nWebsites:\n")
             for i, website in enumerate(websites, 1):
