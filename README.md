@@ -1,11 +1,13 @@
 # 🛡️ CryptexPy: Your Personal Password Manager 📝
 
-Welcome to CryptexPy, a fortress for your passwords. Imagine having a personal password manager where you can store all your sensitive information and no one but you holds the key. That's what CryptexPy is all about!
+Welcome to CryptexPy, a fortress for your digital secrets. In an era where data breaches are common, CryptexPy stands as a beacon of security, offering a personal password manager where you can safely store your sensitive information. Only you hold the key to your digital vault, ensuring that your passwords and secrets remain yours alone.
 
 ## 🌟 Features
 
-- **Fort Knox for your files**: With several layers of protection, your email and passwords are safe and secure.
-- **Ideal for secrets**: Perfect for storing passwords.
+- **Unbreakable Security**: Leveraging state-of-the-art encryption algorithms, CryptexPy ensures that your data is stored in an impenetrable vault.
+- **User-Friendly Interface**: Designed with simplicity in mind, allowing you to easily manage your passwords without any hassle.
+- **Secure Sharing**: Safely share your passwords with trusted contacts without ever exposing your data in plaintext.
+- **Cross-Platform Compatibility**: CryptexPy can be run on any system that supports Python, making it universally accessible.
 
 ## 📚 Requirements
 
@@ -40,21 +42,23 @@ pip install -r requirements.txt
 * Start the script with:
 
 ```
-cd src
-python3 cryptex.py
+cd src && python3 cryptex.py
 ```
+Follow the prompts to register, login, and manage your passwords.
+
+## 🔒 Security Highlights
+
+**CryptexPy uses a combination of bcrypt for password hashing and Fernet symmetric encryption to secure your data. This dual-layer security ensures that even if unauthorized access to the database is obtained, deciphering your credentials without the unique key is virtually impossible.**
 
 ## 🔍 Additional information
 
 - You will need mysql user and password to estabilish connection.
 - Commands:
-  - `-quit` - exit the script.
-  - `-register` - register your account
-  - `-login` - login  to your account
-  - `-logout` - logout from your account
-  - `-enter` - enter your account
-  - `-read` - read and edit your .txt file in decrypted format.
-  - `-reset` - reset your encrypted key and get a new one.
-- When you run `-read` for the first time, the key will be generated.
-- You will be only able to see decrypted data with the correct key. If the key is lost, there is currently no option to recover the data.
-- You can reset key with the `-reset` command which require old encrypted key.
+  - `-quit` - Exit the script.
+  - `-register` - Register a new account.
+  - `-login` - Login to your account.
+  - `-logout` - Logout from your account.
+  - `-save` - Securely save a new password.
+  - `-show` - Retrieve and display saved passwords securely.
+
+Your data's security is our top priority, and CryptexPy is continually updated to implement the latest security practices and encryption technologies.
