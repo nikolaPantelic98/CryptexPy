@@ -61,7 +61,7 @@ setx CRYPTEX_DB_PASSWORD "your_password"
 
 ## 🎮 How to Use
 
-* Start the script with:
+* Navigate to the root CryptexPy directory and start the script with:
 
 ```
 cd src && python3 cryptex.py
