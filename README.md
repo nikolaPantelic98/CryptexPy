@@ -90,4 +90,34 @@ Follow the prompts to register, login, and manage your passwords.
   - `--show` - Retrieve and display saved passwords securely.
   - `--help` - Show all necessary information.
 
-Your data's security is our top priority, and CryptexPy is continually updated to implement the latest security practices and encryption technologies.
+- It is possible to execute execution shortcuts in a terminal with one argument - website - in the following way:
+ 
+1. You need to set an alias to execute the script in an easy way:
+
+```
+echo 'alias cryptex='\''cd /home/nikola/Projects/Local\ Projects/CryptexPy/src && python3 cryptex.py'\''' >> ~/.bashrc
+
+```
+
+2. You can set up terminal auto-complete logic:
+
+```
+echo 'source /home/nikola/Projects/Local\ Projects/CryptexPy/cryptex_autocomplete.sh' >> ~/.bashrc
+```
+
+3. Save edits:
+
+```
+source ~/.bashrc
+```
+
+4. Simply write `cryptex` in the terminal followed by only one argument - `website`. Example:
+
+```
+cryptex reddit
+```
+
+5. After that, you need to enter the `username` and `master password` and the terminal will copy the password to the clipboard.
+
+
+**Your data's security is our top priority, and CryptexPy is continually updated to implement the latest security practices and encryption technologies.**

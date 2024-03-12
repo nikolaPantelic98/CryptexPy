@@ -9,6 +9,7 @@ from getpass import getpass
 
 import pyperclip
 from cryptography.fernet import Fernet
+import argparse
 
 
 def create_database():
@@ -122,7 +123,7 @@ def save(username, website, email, password):
             connection.close()
 
 
-def show(username):
+def show(username, website=None):
     try:
         connection = mysql.connector.connect(
             host="localhost",
@@ -136,13 +137,14 @@ def show(username):
         result = cursor.fetchone()
         if result:
             user_id = result[0]
-            cursor.execute("SELECT website FROM manager WHERE user_id = %s", (user_id,))
-            websites = cursor.fetchall()
-            print("\nWebsites:\n")
-            for i, website in enumerate(websites, 1):
-                print(f"{i}. {website[0]}")
-            print("\n")
-            website = input("$ Enter website: ")
+            if website is None:
+                cursor.execute("SELECT website FROM manager WHERE user_id = %s", (user_id,))
+                websites = cursor.fetchall()
+                print("\nWebsites:\n")
+                for i, website in enumerate(websites, 1):
+                    print(f"{i}. {website[0]}")
+                print("\n")
+                website = input("$ Enter website: ")
             key = getpass("$ Enter master password: ")
             hashed_key = base64.urlsafe_b64encode(hashlib.sha256(key.encode('utf-8')).digest())
             cursor.execute("SELECT email, password FROM manager WHERE user_id = %s AND website = %s", (user_id, website))
@@ -237,47 +239,57 @@ def edit(username):
             connection.close()
 
 
+parser = argparse.ArgumentParser(description='Cryptex command line tool')
+parser.add_argument('website', nargs='?', default=None)
+args = parser.parse_args()
 create_database()
 try:
     logged_in = False
     username = None
-    while True:
-        type_key = input(">$ ")
-        if type_key == "--quit":
-            raise KeyboardInterrupt
-        elif type_key == "--register":
-            username = input("$ Enter username: ")
-            password = getpass("$ Enter master password: ")
-            register(username, password)
-        elif type_key == "--login":
-            username = input("$ Enter username: ")
-            password = getpass("$ Enter master password: ")
-            logged_in = login(username, password)
-            while logged_in:
-                type_key2 = input(f"~{username}>$ ")
-                if type_key2 == "--quit":
-                    raise KeyboardInterrupt
-                elif type_key2 == "--logout":
-                    logged_in = False
-                    username = None
-                    print("[SUCCESS] Logged out")
-                    break
-                elif type_key2 == "--save":
-                    website = input("$ Enter website: ")
-                    email = input("$ Enter email: ")
-                    password = getpass("$ Enter password: ")
-                    save(username, website, email, password)
-                elif type_key2 == "--show":
-                    show(username)
-                elif type_key2 == "--edit":
-                    edit(username)
-                elif type_key2 == "--help":
-                    display_help()
-                else:
-                    print(f"{type_key}: command not found. Type --help for help.")
-        elif type_key == "--help":
-            display_help()
-        else:
-            print(f"{type_key}: command not found. Type --help for help.")
+
+    if args.website:
+        username = input("$ Enter username: ")
+        password = getpass("$ Enter master password: ")
+        if login(username, password):
+            show(username, args.website)
+    else:
+        while True:
+            type_key = input(">$ ")
+            if type_key == "--quit":
+                raise KeyboardInterrupt
+            elif type_key == "--register":
+                username = input("$ Enter username: ")
+                password = getpass("$ Enter master password: ")
+                register(username, password)
+            elif type_key == "--login":
+                username = input("$ Enter username: ")
+                password = getpass("$ Enter master password: ")
+                logged_in = login(username, password)
+                while logged_in:
+                    type_key2 = input(f"~{username}>$ ")
+                    if type_key2 == "--quit":
+                        raise KeyboardInterrupt
+                    elif type_key2 == "--logout":
+                        logged_in = False
+                        username = None
+                        print("[SUCCESS] Logged out")
+                        break
+                    elif type_key2 == "--save":
+                        website = input("$ Enter website: ")
+                        email = input("$ Enter email: ")
+                        password = getpass("$ Enter password: ")
+                        save(username, website, email, password)
+                    elif type_key2 == "--show":
+                        show(username)
+                    elif type_key2 == "--edit":
+                        edit(username)
+                    elif type_key2 == "--help":
+                        display_help()
+                    else:
+                        print(f"{type_key}: command not found. Type --help for help.")
+            elif type_key == "--help":
+                display_help()
+            else:
+                print(f"{type_key}: command not found. Type --help for help.")
 except KeyboardInterrupt:
     pass
