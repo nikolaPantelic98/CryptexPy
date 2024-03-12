@@ -55,7 +55,7 @@ setx CRYPTEX_DB_USER "your_username"
 setx CRYPTEX_DB_PASSWORD "your_password"
 ```
 
-* Replace 'your_username' and 'your_password' with real credentials.
+* Replace `your_username` and `your_password` with real credentials.
 * Execute these commands line for line.
 * It is necessary to close and reopen cmd for variables to be available on Windows.
 
